@@ -11,7 +11,7 @@ apply plugin: 'maven'
 
 group = "neo"
 project.ext.name = "CFHTEphemerides"
-version = "1.0.0"
+version = "1.0.1"
 project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
 
 project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"

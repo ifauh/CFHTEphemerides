@@ -71,11 +71,11 @@ public class MpcKnownRequester implements IRequester {
 			this.cfhtEphemerides = new ArrayList<>();
 			for (String line : response.body().split("\n")) {
 				if (DATE_MATCH.matcher(line).matches()) {
-					this.cfhtEphemerides.add(buildEphemeris(line));
+					this.cfhtEphemerides.add(MPCCommon.buildEphemeris(line));
 				}
 			}
 			if (this.cfhtEphemerides.isEmpty()) {
-				logger.info("MPC doesn't seem to know [{}] (this might be expected)", 
+				logger.info("MPC Known Ephemerides Service doesn't seem to know [{}] (this might be expected)", 
 						this.smallBodyRequest.getDesignation());
 				this.requestSuccessful = false;
 			}
@@ -92,36 +92,6 @@ public class MpcKnownRequester implements IRequester {
 			this.requestSuccessful = false;
 		}
 		return this;
-	}
-
-	private static String buildEphemeris(String line) {
-		StringBuilder sb = new StringBuilder();
-		// Date part
-		sb.append(line.substring(0, 4));
-		sb.append("-");
-		sb.append(line.substring(5, 5+2));
-		sb.append("-");
-		sb.append(line.substring(8, 8+2));
-		sb.append(" ");
-		sb.append(line.substring(11, 11+2));
-		sb.append(":");
-		sb.append(line.substring(13, 13+2));
-		sb.append(":00|");
-		// RA
-		sb.append(line.substring(18, 18+2));
-		sb.append(":");
-		sb.append(line.substring(21, 21+2));
-		sb.append(":");
-		sb.append(line.substring(24, 24+4));
-		sb.append("0|");
-		// De
-		sb.append(line.substring(29, 29+3));
-		sb.append(":");
-		sb.append(line.substring(33, 33+2));
-		sb.append(":");
-		sb.append(line.substring(36, 36+2));
-		sb.append(".0|");
-		return sb.toString();
 	}
 
 	@Override
