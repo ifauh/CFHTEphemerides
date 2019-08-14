@@ -8,3 +8,6 @@ syntax: regexp
 ^\.settings/.*
 ^\.settings/.*
 ^trash/.*
+^out/.*
+^tmp/.*
+.*\.log
