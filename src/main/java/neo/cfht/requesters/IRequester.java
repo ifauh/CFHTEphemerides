@@ -15,6 +15,7 @@ public interface IRequester extends Callable<IRequester> {
 		List<IRequester> requesters = new ArrayList<>();
 		requesters.add(new JplNeoRequester(smallBodyRequest));
 		requesters.add(new MpcKnownRequester(smallBodyRequest));
+		requesters.add(new MpcNeoRequester(smallBodyRequest));
 		return requesters;
 	}
 
