@@ -93,7 +93,7 @@ public class JplNeoRequester implements IRequester {
 						this.smallBodyRequest.getDesignation(),
 						e.getMessage(), e);
 			} else {
-				logger.warn("Exception caught while executing JplNeoRequester for object [{}] (this might be expected): {}",
+				logger.warn("JPL Scout doesn't seem to know the NEO candidate [{}] (this might be expected): {}",
 						this.smallBodyRequest.getDesignation(), e.getMessage());
 				logger.info("If you think that it is an issue, execute the same command line with '-d -useLogfile' "
 						+ "and send the generated log to someone who can help");
