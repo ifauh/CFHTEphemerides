@@ -1,0 +1,158 @@
+/*
+ * This build file is a template for any NEO project
+ *
+ */
+
+// Apply the java-library plugin to add support for Java Library
+apply plugin: 'java-library'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+
+group = "neo"
+project.ext.name = "CFHTEphemerides"
+version = "1.0.0"
+project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
+
+project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
+
+// Don't change this
+project.ext.release = "Not set" 
+project.ext.neoGradle = "0.3"
+project.ext.home = "${System.properties['user.home']}"
+project.ext.neo = [
+  bin: "/home/schastel/common/neo/bin",
+  data: "/home/schastel/common/neo/share",
+  mavenRepo: "/home/schastel/common/neo/share/MavenLocalRepository",
+  mavenRepoSnap: "/home/schastel/common/neo/share/MavenLocalRepository/snapshots"
+  ]
+
+def localMavenRepository = 'file://' + new File(project.ext.neo['mavenRepo']).absolutePath
+def localMavenRepositorySnapshots = 'file://' + new File(project.ext.neo['mavenRepoSnap']).absolutePath
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use jcenter for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+    maven {url localMavenRepository}
+}
+
+dependencies {
+    // The production code uses the SLF4J logging API at compile time
+    // Logging
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'ch.qos.logback:logback-core:1.2.3'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+    // Databases
+    compile 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+    compile 'org.xerial:sqlite-jdbc:3.27.2.1'
+    // Unit tests
+    compile 'junit:junit:4.12'
+    // CLI arguments
+    compile 'info.picocli:picocli:3.9.6'
+    compile project(':NEOCommon')
+    
+    // Dependency for your test framework
+    testCompile 'junit:junit:4.12'
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+}
+
+task checkNeoGradle {
+  String neoEnvironmentVersionFilename = project.ext.neo['data'] + '/NeoGradleVersion'
+  String expectedNeoGradle = new File(neoEnvironmentVersionFilename).text
+  if (expectedNeoGradle.trim() != project.ext.neoGradle) {
+    throw new GradleException('Neo base gradle script has changed! project.ext.neoGradle should match ${neoEnvironmentVersionFilename}')
+  }
+}
+
+task setRelease {
+  dependsOn checkNeoGradle
+  doLast {
+    new ByteArrayOutputStream().withStream { os ->
+      def result = exec {
+        commandLine '/usr/bin/python', project.ext.neo.bin + '/hgRelease.py'
+        standardOutput = os; 
+      }
+      project.ext.release = os.toString()
+    }
+  }
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Title": project.ext.name,
+                   "Implementation-Version": version,
+                   "Main-Class": project.ext.mainClass,
+                   "SCM-Version": project.ext.release
+                   )
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task testJar(type: Jar) {
+    classifier = 'tests'
+    from sourceSets.test.output + sourceSets.test.allSource
+}
+
+artifacts {
+    archives sourcesJar
+    // archives javadocJar // Commented out: Fails if Javadoc non strictly compliant
+}
+
+def boolean doUpload
+
+// Check if there is already an arteface named the same in the localMavenRepository
+task checkRelease {
+  def jarName = project.ext.name + '-' + project.version + '.jar'
+  def repositoryPath = project.group.replace(".", "/") + "/" + project.name + "/" + project.version + "/" + jarName
+  def repositoryUrl = localMavenRepository + "/" + repositoryPath
+  if (file(repositoryUrl).exists()) {
+    println "File ${repositoryUrl} exists"
+    doUpload = false
+  } else {
+    println "File ${repositoryUrl} doesn't exist"
+    doUpload = true
+  }
+}
+
+uploadArchives {
+    dependsOn checkRelease
+    repositories {
+        mavenDeployer {
+            repository(url: localMavenRepository) { }
+
+            snapshotRepository(url: localMavenRepositorySnapshots) { }
+ 
+            pom.project {
+                name project.ext.name
+                packaging 'aar'
+                description project.ext.description
+                url project.ext.release
+            }
+        }
+    }
+}
+
+task fatJar(type: Jar) {
+    dependsOn jar
+    manifest {
+        attributes("Implementation-Title": project.ext.name,
+                   "Implementation-Version": version,
+                   "Main-Class": project.ext.mainClass,
+                   "SCM-Version": project.ext.release
+                   )
+    }
+    baseName = project.ext.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}

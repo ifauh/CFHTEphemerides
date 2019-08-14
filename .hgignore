@@ -1,0 +1,10 @@
+syntax: regexp
+^build/.*
+^gradle/.*
+^\.gradle/.*
+^bin/.*
+^\.classpath$
+^\.project$
+^\.settings/.*
+^\.settings/.*
+^trash/.*

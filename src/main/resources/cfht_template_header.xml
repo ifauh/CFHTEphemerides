@@ -1,0 +1,22 @@
+<?xml version = "1.0"?>
+<!DOCTYPE ASTRO SYSTEM "http://vizier.u-strasbg.fr/xml/astrores.dtd">
+<ASTRO ID="v0.8" xmlns:ASTRO="http://vizier.u-strasbg.fr/doc/astrores.htx">
+  <TABLE ID="Table">
+    <NAME>Ephemeris</NAME>
+    <TITLE>Ephemeris for CFHT QSO</TITLE>
+    <!-- Definition of each field -->
+    <FIELD name="DATE_UTC" datatype="A" width="19" format="YYYY-MM-DD hh:mm:ss">
+    <DESCRIPTION>UTC Date</DESCRIPTION>
+    </FIELD>
+    <FIELD name="RA_J2000" datatype="A" width="11" unit="h" format="RAh:RAm:RAs">
+    <DESCRIPTION>Right ascension of target</DESCRIPTION>
+    </FIELD>
+    <FIELD name="DEC_J2000" datatype="A" width="11" unit="deg" format="DEd:DEm:DEs">
+    <DESCRIPTION>Declination of target</DESCRIPTION>
+    </FIELD>
+    <!-- Data table -->
+<DATA><CSV headlines="4" colsep="|">
+<![CDATA[ DATE_UTC |RA_J2000   |DEC_J2000  |
+YYYY-MM-DD hh:mm:ss|hh:mm:ss.ss|+dd:mm:ss.s|
+1234567890123456789|12345678901|12345678901|
+-------------------|-----------|-----------|
