@@ -11,3 +11,5 @@ syntax: regexp
 ^out/.*
 ^tmp/.*
 .*\.log
+VERSION
+^scripts/.*~$
