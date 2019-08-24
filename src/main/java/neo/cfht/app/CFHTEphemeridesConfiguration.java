@@ -1,5 +1,7 @@
 package neo.cfht.app;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -11,10 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
+import neo.exceptions.NeoIOException;
 import neo.exceptions.NeoInitializationException;
 import neo.exceptions.NeoSerializationException;
 import neo.logging.NeoLogging;
 import neo.timing.NeoZoneId;
+import neo.utils.UtilsInternet;
 import neo.utils.UtilsResources;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -51,6 +55,11 @@ public class CFHTEphemeridesConfiguration {
 			required = false)
 	private boolean displayVersion;
 
+	@Option( names = {"-bypassVersionCheck", "--bypassVersionCheck"}, 
+			description = "Bypass the version check",
+			required = false)
+	private boolean bypassVersionCheck;
+	
 	@Option( names = {"-threads", "--threads"},
 			description = "Set the maximum number of threads (default: ${DEFAULT-VALUE})",
 			defaultValue = "10",
@@ -169,6 +178,22 @@ public class CFHTEphemeridesConfiguration {
 			System.exit(0);
 			return null;
 		}
+		if (!cec.checkVersion()) {
+			if (!cec.bypassVersionCheck) {
+				System.err.println("!".repeat(80));
+				System.err.println("!");
+				System.err.println("! You are not using the last version of this software (which is " + VERSION +")");
+				System.err.println("!");
+				System.err.println("!");
+				System.err.println("! Either download the last version at https://neo.ifa.hawaii.edu/users/cfht/CFHTEphemerides-last.jar");
+				System.err.println("! Or append the -bypassVersionCheck sflag");
+				System.err.println("!");
+				System.err.println("!".repeat(80));
+				System.exit(2);
+			} else {
+				logger.warn("Not using the last version of this software");
+			}
+		}
 		Level level = cec.debug?Level.DEBUG:Level.INFO;
 		String logFileName = "/dev/stdout";
 		if (cec.useLogfile) {
@@ -180,6 +205,18 @@ public class CFHTEphemeridesConfiguration {
 		logger.debug("Arguments array: {}", (Object[]) arguments);
 		cec.initialize();
 		return cec;
+	}
+
+	private boolean checkVersion() throws NeoInitializationException {
+		try {
+			String currentVersion = new String(UtilsInternet.download(new URL("https://neo.ifa.hawaii.edu/users/cfht/VERSION"))).trim();
+			if (this.debug) {
+				logger.debug("Current version: [{}], software version: [{}]", currentVersion, VERSION);
+			}
+			return VERSION.equals(currentVersion);
+		} catch (NeoIOException | MalformedURLException e) {
+			throw new NeoInitializationException(e);
+		}
 	}
 
 	private void initialize() throws NeoInitializationException {

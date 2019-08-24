@@ -48,7 +48,8 @@ public class CFHTEphemerides {
 				try {
 					requester.write();
 				} catch (NeoIOException e) {
-					logger.error("Could not write {}: {}", requester.getOutputFileName(), e.getMessage(), e);
+					logger.error("Issue while writing output file(s): {}", e.getMessage(), 
+							e);
 				}
 			}
 		}

@@ -1,7 +1,5 @@
 package neo.cfht.requesters;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -10,7 +8,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +19,9 @@ import org.slf4j.LoggerFactory;
 
 import neo.cfht.app.CFHTEphemeridesConfiguration;
 import neo.cfht.models.CFHTFormatter;
+import neo.cfht.models.Ephemeris;
 import neo.cfht.models.SmallBodyRequest;
-import neo.exceptions.NeoIOException;
 import neo.serialization.json.JsonHelpers;
-import neo.utils.UtilsOs;
 
 /**
  * Request NEO Candidate from JPL Scout 
@@ -40,12 +36,30 @@ public class JplNeoRequester implements IRequester {
 	public static final String FORMAT_JPL_SCOUT_URL = "https://ssd-api.jpl.nasa.gov/scout.api?"
 			+ "tdes=%s&eph-start=%sT04:00:00&eph-stop=%sT18:00:00&eph-step=%sm&obs-code=%s";
 
+	private static final String SUFFIX = "neojpl";
+	@Override
+	public String getSuffix() {
+		return JplNeoRequester.SUFFIX;
+	}
+	
 	private SmallBodyRequest smallBodyRequest;
+	@Override
+	public SmallBodyRequest getSmallBodyRequest() {
+		return this.smallBodyRequest;
+	}
+
 	private List<String> cfhtEphemerides;
+	private List<Ephemeris> ephemerides;
+	@Override
+	public List<Ephemeris> getEphemerides() {
+		return this.ephemerides;
+	}
 
 	private boolean requestSuccessful;
 
-	private String outputFileName;
+	private String outputFileNameXML;
+	private String outputFileNameJSON;
+	
 	@Override
 	public boolean isRequestSuccessful() {
 		return this.requestSuccessful;
@@ -77,6 +91,7 @@ public class JplNeoRequester implements IRequester {
 			JsonObject jsonObject = JsonHelpers.readObject(new StringReader(response.body()));
 			logger.debug("response = {}", JsonHelpers.prettyString(jsonObject));
 			this.cfhtEphemerides = new ArrayList<>();
+			this.ephemerides = new ArrayList<>();
 			for (JsonValue ephemeris : jsonObject.getJsonArray("eph")) {
 				JsonObject jEphemeris = JsonObject.class.cast(ephemeris);
 				String time = jEphemeris.getString("time");
@@ -86,6 +101,7 @@ public class JplNeoRequester implements IRequester {
 				logger.debug("{}:{}:{}", time, ra, de);
 				this.cfhtEphemerides.add(String.format("%s|%s|%s|", 
 						time, CFHTFormatter.raForCFHT(ra), CFHTFormatter.deForCFHT(de)));
+				this.ephemerides.add(Ephemeris.buildJPL(time, ra, de));
 			}
 		} catch (Exception e) {
 			if (this.smallBodyRequest.getCFHTEphemeridesConfiguration().isDebug()) {
@@ -98,6 +114,7 @@ public class JplNeoRequester implements IRequester {
 				logger.info("If you think that it is an issue, execute the same command line with '-d -useLogfile' "
 						+ "and send the generated log to someone who can help");
 			}
+			logger.info("Marking request to JPL Scout as failed");
 			this.requestSuccessful = false;
 		}
 		return this;
@@ -108,24 +125,51 @@ public class JplNeoRequester implements IRequester {
 		return this.smallBodyRequest.getCFHTEphemeridesConfiguration().getCfhtXML(this.cfhtEphemerides);
 	}
 	
-	@Override
-	public void write() throws NeoIOException {
-		Path outputDirectory = this.smallBodyRequest.getCFHTEphemeridesConfiguration().getOutputDirectory();
-		this.outputFileName = outputDirectory.resolve(this.smallBodyRequest.getDesignation() + "-C000.jpl").toString();
-		UtilsOs.mkdirs(outputDirectory);
-		try (PrintWriter writer 
-				= new PrintWriter(this.outputFileName)) {
-			logger.info("Writing output XML file: {}", this.outputFileName);
-			writer.println(getCfhtXML());
-			writer.close();
-		} catch (IOException e) {
-			throw new NeoIOException(e);
-		}
-	}
-
-	@Override
-	public String getOutputFileName() {
-		return this.outputFileName;
-	}
+//	@Override
+//	public String writeXML() throws NeoIOException {
+//		Path outputDirectory = this.smallBodyRequest.getCFHTEphemeridesConfiguration().getOutputDirectory();
+//		this.outputFileNameXML = outputDirectory.resolve(this.smallBodyRequest.getDesignation() + "-C000.jpl.xml").toString();
+//		UtilsOs.mkdirs(outputDirectory);
+//		try (PrintWriter writer 
+//				= new PrintWriter(this.outputFileNameXML)) {
+//			logger.info("Writing output XML file: {}", this.outputFileNameXML);
+//			writer.println(getCfhtXML());
+//			writer.close();
+//		} catch (IOException e) {
+//			throw new NeoIOException(e);
+//		}
+//		return this.outputFileNameXML;
+//	}
 	
+//	@Override
+//	public String writeJson() throws NeoIOException {
+//		Path outputDirectory = this.smallBodyRequest.getCFHTEphemeridesConfiguration().getOutputDirectory();
+//		this.outputFileNameJSON = outputDirectory.resolve(this.smallBodyRequest.getDesignation() + "-C000.jpl.json").toString();
+//		UtilsOs.mkdirs(outputDirectory);
+//		try (PrintWriter writer = new PrintWriter(this.outputFileNameJSON)) {
+//			logger.info("Writing output JSON file: {}", this.outputFileNameJSON);
+//			writer.println(getCfhtJSON());
+//			writer.close();
+//		} catch (IOException e) {
+//			throw new NeoIOException(e);
+//		}
+//		return this.outputFileNameJSON;
+//	}
+	
+	@Override
+	public String getOutputFileNameXML() {
+		return this.outputFileNameXML;
+	}
+	@Override
+	public void setOutputFileNameXML(String outputFileNameXML) {
+		this.outputFileNameXML = outputFileNameXML;
+	}
+	@Override
+	public String getOutputFileNameJSON() {
+		return this.outputFileNameJSON;
+	}
+	@Override
+	public void setOutputFileNameJSON(String outputFileNameJSON) {
+		this.outputFileNameJSON = outputFileNameJSON;
+	}
 }
