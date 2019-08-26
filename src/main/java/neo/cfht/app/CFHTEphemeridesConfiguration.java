@@ -62,7 +62,7 @@ public class CFHTEphemeridesConfiguration {
 	
 	@Option( names = {"-threads", "--threads"},
 			description = "Set the maximum number of threads (default: ${DEFAULT-VALUE})",
-			defaultValue = "4", /* if larger, Scout fails */
+			defaultValue = "2", /* if larger, Scout fails :-( */
 			required = false)
 	private int threadsCounts;
 	public int getThreadsCounts() {
