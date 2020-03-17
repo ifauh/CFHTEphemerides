@@ -18,7 +18,7 @@ project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
 
 // Don't change this
 project.ext.release = "Not set" 
-project.ext.neoGradle = "0.3"
+project.ext.neoGradle = "0.4"
 project.ext.home = "${System.properties['user.home']}"
 project.ext.neo = [
   bin: "/home/schastel/common/neo/bin",
@@ -34,23 +34,14 @@ def localMavenRepositorySnapshots = 'file://' + new File(project.ext.neo['mavenR
 repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
     maven {url localMavenRepository}
 }
 
 dependencies {
     // The production code uses the SLF4J logging API at compile time
-    // Logging
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    compile 'ch.qos.logback:logback-core:1.2.3'
-    compile 'ch.qos.logback:logback-classic:1.2.3'
-    // Databases
-    compile 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
-    compile 'org.xerial:sqlite-jdbc:3.27.2.1'
-    // Unit tests
-    compile 'junit:junit:4.12'
     // CLI arguments
-    compile 'info.picocli:picocli:3.9.6'
+    compile 'info.picocli:picocli:4.0.4'
     compile project(':NEOCommon')
     
     // Dependency for your test framework
