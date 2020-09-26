@@ -1,68 +1,83 @@
 /*
- * This build file is a template for any NEO project
+ * Generated on 2020-09-26T16:16:31.166996Z
  *
  */
 
 // Apply the java-library plugin to add support for Java Library
-apply plugin: 'java-library'
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 group = "neo"
 project.ext.name = "CFHTEphemerides"
-version = "1.0.4"
+project.ext.version = "1.0.4"
+project.ext.confVersion = "1.0"
 project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
-
 project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
-
-// Don't change this
-project.ext.release = "Not set" 
-project.ext.neoGradle = "0.4"
-project.ext.home = "${System.properties['user.home']}"
-project.ext.neo = [
-  bin: "/home/schastel/common/neo/bin",
-  data: "/home/schastel/common/neo/share",
-  mavenRepo: "/home/schastel/common/neo/share/MavenLocalRepository",
-  mavenRepoSnap: "/home/schastel/common/neo/share/MavenLocalRepository/snapshots"
-  ]
-
-def localMavenRepository = 'file://' + new File(project.ext.neo['mavenRepo']).absolutePath
-def localMavenRepositorySnapshots = 'file://' + new File(project.ext.neo['mavenRepoSnap']).absolutePath
+project.ext.specificationVersion = "0.2" // see NEOProjectDevelopment
+project.ext.release = ""
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     mavenCentral()
-    maven {url localMavenRepository}
 }
 
-dependencies {
-    // The production code uses the SLF4J logging API at compile time
-    // CLI arguments
-    compile 'info.picocli:picocli:4.0.4'
-    compile project(':NEOCommon')
-    
-    // Dependency for your test framework
-    testCompile 'junit:junit:4.12'
-    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
-}
-
-task checkNeoGradle {
-  String neoEnvironmentVersionFilename = project.ext.neo['data'] + '/NeoGradleVersion'
-  String expectedNeoGradle = new File(neoEnvironmentVersionFilename).text
-  if (expectedNeoGradle.trim() != project.ext.neoGradle) {
-    throw new GradleException('Neo base gradle script has changed! project.ext.neoGradle should match ${neoEnvironmentVersionFilename}')
+configurations.all {
+  resolutionStrategy {
+    // fail eagerly on version conflict (includes transitive dependencies)
+    // e.g. multiple different versions of the same dependency
+    // (group and name are equal)
+    // failOnVersionConflict()
   }
 }
 
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+}
+
+dependencies {
+    // External dependencies for implementation
+	implementation 'info.picocli:picocli:4.0.4'
+	implementation 'javax.json:javax.json-api:1.1'
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
+	implementation 'javax.servlet:javax.servlet-api:3.1.0'
+	implementation 'ch.qos.logback:logback-core:1.2.3'
+	implementation 'com.sun.mail:javax.mail:1.6.2'
+	implementation 'org.apache.commons:commons-math3:3.6.1'
+	implementation 'org.hibernate:hibernate-core:5.4.10.Final'
+	implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
+	implementation 'gov.nasa.gsfc.heasarc:nom-tam-fits:1.15.2'
+	implementation 'org.glassfish:javax.json:1.1'
+	implementation 'info.picocli:picocli:4.5.1'
+	implementation 'ch.qos.logback:logback-classic:1.2.3'
+	implementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+
+
+    // NEO parent project(s)
+	implementation project(':NEOExceptions')
+	implementation project(':NEOModels')
+	implementation project(':NEOCommon')
+	implementation project(':NEOLogging')
+	implementation project(':ExtHealpix')
+
+
+
+    // Dependency for test framework
+    // External dependencies (testImplementation)
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+
+
+}
+
 task setRelease {
-  dependsOn checkNeoGradle
   doLast {
     new ByteArrayOutputStream().withStream { os ->
       def result = exec {
-        commandLine '/usr/bin/python', project.ext.neo.bin + '/hgRelease.py'
+        commandLine 'git describe'
         standardOutput = os; 
       }
       project.ext.release = os.toString()
@@ -73,11 +88,13 @@ task setRelease {
 jar {
     manifest {
         attributes("Implementation-Title": project.ext.name,
-                   "Implementation-Version": version,
+                   "Implementation-Version": project.ext.version,
+                   "Specification-Version": project.ext.confVersion,
                    "Main-Class": project.ext.mainClass,
                    "SCM-Version": project.ext.release
                    )
     }
+    archiveBaseName = project.ext.name + "-" + project.ext.version
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -100,50 +117,60 @@ artifacts {
     // archives javadocJar // Commented out: Fails if Javadoc non strictly compliant
 }
 
-def boolean doUpload
-
-// Check if there is already an arteface named the same in the localMavenRepository
-task checkRelease {
-  def jarName = project.ext.name + '-' + project.version + '.jar'
-  def repositoryPath = project.group.replace(".", "/") + "/" + project.name + "/" + project.version + "/" + jarName
-  def repositoryUrl = localMavenRepository + "/" + repositoryPath
-  if (file(repositoryUrl).exists()) {
-    println "File ${repositoryUrl} exists"
-    doUpload = false
-  } else {
-    println "File ${repositoryUrl} doesn't exist"
-    doUpload = true
-  }
-}
-
-uploadArchives {
-    dependsOn checkRelease
-    repositories {
-        mavenDeployer {
-            repository(url: localMavenRepository) { }
-
-            snapshotRepository(url: localMavenRepositorySnapshots) { }
- 
-            pom.project {
-                name project.ext.name
-                packaging 'aar'
-                description project.ext.description
-                url project.ext.release
-            }
-        }
-    }
-}
-
+// Build a jar aggregating all jars
+// Fails if there is no project.ext.mainClass or no project.ext.specVersion
 task fatJar(type: Jar) {
-    dependsOn jar
+    dependsOn compileJava, sourcesJar
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes("Implementation-Title": project.ext.name,
-                   "Implementation-Version": version,
+        attributes ("Implementation-Title": project.ext.name,
+                   "Implementation-Version": project.ext.version,
+                   "Specification-Version": project.ext.confVersion,
                    "Main-Class": project.ext.mainClass,
                    "SCM-Version": project.ext.release
                    )
     }
-    baseName = project.ext.name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    archiveBaseName = project.ext.name + "-" + project.ext.version
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			groupId = group
+			artifactId = project.ext.name
+			version = project.ext.version
+			from components.java
+			versionMapping {
+				usage('java-api') {
+					fromResolutionOf('runtimeClasspath')
+				}
+				usage('java-runtime') {
+					fromResolutionResult()
+				}
+			}
+			pom {
+				name = project.ext.name
+				description = project.ext.description
+				url = 'https://confluence.ipp.ifa.hawaii.edu/display/MOPS/Sources'
+				properties = [
+					"prop.with.dots": "anotherValue"
+				]
+				developers {
+					developer {
+						id = 'schastel'
+						name = 'Serge Chastel'
+						email = 'schastel@hawaii.edu'
+					}
+				}
+				scm {
+					url = 'https://confluence.ipp.ifa.hawaii.edu/display/MOPS/Sources'
+				}
+			}
+		}
+	}
+	repositories {
+	}
+}
+
