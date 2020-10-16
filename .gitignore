@@ -16,3 +16,6 @@ bin
 
 # Products
 out
+VERSION
+tmp
+
