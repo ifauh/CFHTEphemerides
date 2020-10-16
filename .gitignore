@@ -13,3 +13,6 @@ trash
 .project
 .settings
 bin
+
+# Products
+out

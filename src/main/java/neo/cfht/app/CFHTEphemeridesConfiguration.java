@@ -144,6 +144,15 @@ public class CFHTEphemeridesConfiguration {
 		return this.observatory;
 	}
 	
+	@Option( names = { "-norbits", "--norbits" }, 
+			description = "[JPL only] Number of sampled orbits. Default: ${DEFAULT-VALUE}",
+			defaultValue = "100",
+			required = false)
+	private int nOrbits;
+	public int getNOrbits() {
+		return this.nOrbits;
+	}
+	
 	@Parameters(index = "0..*",
 			description = "List of designations (NEOCP candidates or known objects or mix of those).\n" +
 					"*** It is extremely important to write the designation between single \n" + 

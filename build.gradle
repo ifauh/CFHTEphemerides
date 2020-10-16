@@ -1,5 +1,5 @@
 /*
- * Generated on 2020-09-26T16:16:31.166996Z
+ * Generated on 2020-10-16T23:36:30.743813Z
  *
  */
 
@@ -10,7 +10,7 @@ apply plugin: 'maven-publish'
 
 group = "neo"
 project.ext.name = "CFHTEphemerides"
-project.ext.version = "1.0.4"
+project.ext.version = "1.0.5"
 project.ext.confVersion = "1.0"
 project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
 project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
@@ -69,6 +69,7 @@ dependencies {
     // Dependency for test framework
     // External dependencies (testImplementation)
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
 
 
 }

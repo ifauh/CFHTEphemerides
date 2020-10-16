@@ -34,7 +34,7 @@ public class JplNeoRequester implements IRequester {
 	private final static Logger logger = LoggerFactory.getLogger(JplNeoRequester.class);
 
 	public static final String FORMAT_JPL_SCOUT_URL = "https://ssd-api.jpl.nasa.gov/scout.api?"
-			+ "tdes=%s&eph-start=%sT04:00:00&eph-stop=%sT18:00:00&eph-step=%sm&obs-code=%s";
+			+ "tdes=%s&eph-start=%sT04:00:00&eph-stop=%sT18:00:00&eph-step=%sm&obs-code=%s&n-orbits=%d";
 
 	private static final String SUFFIX = "neojpl";
 	@Override
@@ -82,7 +82,8 @@ public class JplNeoRequester implements IRequester {
 							encodedDesignation,
 							cec.getDate(), cec.getDate(),
 							cec.getIntervalMinutes(),
-							cec.getObservatory())))
+							cec.getObservatory(),
+							cec.getNOrbits())))
 					.build();
 			logger.debug("Sending request for {}", this.smallBodyRequest.getDesignation());
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
