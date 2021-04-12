@@ -3,7 +3,6 @@ package neo.cfht.app;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,12 +10,12 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 
 import neo.exceptions.NeoIOException;
 import neo.exceptions.NeoInitializationException;
 import neo.exceptions.NeoSerializationException;
 import neo.logging.NeoLogging;
+import neo.logging.Resources;
 import neo.timing.NeoZoneId;
 import neo.utils.UtilsInternet;
 import neo.utils.UtilsOs;
@@ -31,7 +30,10 @@ import picocli.CommandLine.Parameters;
 			" generate XML input files for the CFHT. NEOCP candidates and known objects are managed.\n"
 			+ "'tonight' is is the current UT day if it is before 5am HST, the next day if after.\n"
 			+ "\n"
-			+ "Note: Ephemerides are requested from JPL Scout (resp. MPC) for the NEOCP objects (resp. known objects).\n")
+			+ "Note: Ephemerides are requested from JPL Scout (resp. MPC) for the NEOCP objects (resp. known objects).\n"
+			+ "\n"
+			+ "IF THERE IS ANY ISSUE, please send the files prefixed with 'send-serge-if-trouble-'\n"
+			+ "\n")
 public class CFHTEphemeridesConfiguration {
 	/** Logging */
 	private final static Logger logger = LoggerFactory.getLogger(CFHTEphemeridesConfiguration.class);
@@ -69,11 +71,6 @@ public class CFHTEphemeridesConfiguration {
 	public int getThreadsCounts() {
 		return this.threadsCounts;
 	}
-	
-	@Option( names = {"-useLogfile", "--useLogfile"},
-			description = "Write all log messages to a log file",
-			required = false)
-	private boolean useLogfile;
 	
 	@Option( names = {"-date", "--date"},
 			description = "[MPC|JPL] Use a different date than '${DEFAULT-VALUE}'",
@@ -196,7 +193,7 @@ public class CFHTEphemeridesConfiguration {
 				System.err.println("!");
 				System.err.println("!");
 				System.err.println("! Either download the last version at https://neo.ifa.hawaii.edu/users/cfht/CFHTEphemerides-last.jar");
-				System.err.println("! Or append the -bypassVersionCheck sflag");
+				System.err.println("! Or append the -bypassVersionCheck sflag if you cannot update (not sure that the software will work)");
 				System.err.println("!");
 				System.err.println("!".repeat(80));
 				System.exit(2);
@@ -204,15 +201,23 @@ public class CFHTEphemeridesConfiguration {
 				logger.warn("Not using the last version of this software");
 			}
 		}
-		Level level = cec.debug?Level.DEBUG:Level.INFO;
-		String logFileName = "/dev/stdout";
-		if (cec.useLogfile) {
-			logFileName = "cfht_ephemerides-" +VERSION + "-" + Instant.now().toString() + ".log";
-			logger.info("Logging to {}", logFileName);
+		System.err.println("!".repeat(80));
+		System.err.println("!");
+		System.err.println("! IF THERE IS ANY ISSUE");
+		System.err.println("! Please send all files prefixed with 'send-serge-if-trouble'");
+		System.err.println("! stored in the " + cec.outputDirectory.toString() + " directory");
+		System.err.println("! That should help a lot...");
+		System.err.println("!");
+		System.err.println("!".repeat(80));
+		if (cec.debug) {
+			NeoLogging.initialize(Resources.class.getResourceAsStream("/logging/cfth-ephemerides-logging-debug.xml"));
+		} else {
+			NeoLogging.initialize(Resources.class.getResourceAsStream("/logging/cfth-ephemerides-logging-info.xml"));
 		}
-		NeoLogging.log2file(logFileName, level);
+		logger.debug("!".repeat(80));
+		logger.debug("NEW RUN");
 		logger.debug("Called with arguments: [{}]", String.join(" ", arguments));
-		logger.debug("Arguments array: {}", (Object[]) arguments);
+		logger.debug("Version: {}", VERSION);
 		cec.initialize();
 		return cec;
 	}
@@ -265,9 +270,9 @@ public class CFHTEphemeridesConfiguration {
 		// Load the header / footer templates
 		try {
 			StringBuilder sb = new StringBuilder();
-			sb.append(UtilsResources.getResourceAsString("/cfht_template_header.xml"));
+			sb.append(UtilsResources.getResourceAsString("/xml/cfht_template_header.xml"));
 			sb.append("%s\n");
-			sb.append(UtilsResources.getResourceAsString("/cfht_template_footer.xml"));
+			sb.append(UtilsResources.getResourceAsString("/xml/cfht_template_footer.xml"));
 			this.cfhtTemplateFormat = sb.toString(); 
 		} catch (NeoSerializationException e) {
 			throw new NeoInitializationException(e);
