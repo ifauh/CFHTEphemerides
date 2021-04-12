@@ -61,6 +61,7 @@ public class CFHTEphemerides {
 			CFHTEphemerides ce = new CFHTEphemerides(cec);
 			ce.run();
 		} catch (Exception e) {
+			logger.error("Aborting because of exception: {}", e.getMessage(), e);
 			e.printStackTrace();
 		}
 		
