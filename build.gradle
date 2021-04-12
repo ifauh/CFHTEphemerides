@@ -1,5 +1,5 @@
 /*
- * Generated on 2020-10-16T23:36:30.743813Z
+ * Generated on 2021-04-12T17:39:33.449260Z
  *
  */
 
@@ -10,7 +10,7 @@ apply plugin: 'maven-publish'
 
 group = "neo"
 project.ext.name = "CFHTEphemerides"
-project.ext.version = "1.0.5"
+project.ext.version = "1.0.6"
 project.ext.confVersion = "1.0"
 project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
 project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
@@ -40,29 +40,28 @@ test {
 
 dependencies {
     // External dependencies for implementation
-	implementation 'info.picocli:picocli:4.0.4'
-	implementation 'javax.json:javax.json-api:1.1'
-	implementation 'javax.xml.bind:jaxb-api:2.3.0'
-	implementation 'javax.servlet:javax.servlet-api:3.1.0'
-	implementation 'ch.qos.logback:logback-core:1.2.3'
-	implementation 'com.sun.mail:javax.mail:1.6.2'
-	implementation 'org.apache.commons:commons-math3:3.6.1'
-	implementation 'org.hibernate:hibernate-core:5.4.10.Final'
-	implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
-	implementation 'gov.nasa.gsfc.heasarc:nom-tam-fits:1.15.2'
-	implementation 'org.glassfish:javax.json:1.1'
-	implementation 'info.picocli:picocli:4.5.1'
 	implementation 'ch.qos.logback:logback-classic:1.2.3'
+	implementation 'ch.qos.logback:logback-core:1.2.3'
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'com.sun.mail:javax.mail:1.6.2'
+	implementation 'gov.nasa.gsfc.heasarc:nom-tam-fits:1.15.2'
+	implementation 'info.picocli:picocli:4.5.1'
+	implementation 'javax.servlet:javax.servlet-api:3.1.0'
+	implementation 'javax.xml.bind:jaxb-api:2.3.0'
+	implementation 'org.apache.commons:commons-math3:3.6.1'
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
+	implementation 'org.hibernate:hibernate-core:5.4.10.Final'
+	implementation 'org.hibernate:hibernate-entitymanager:5.4.10.Final'
+	implementation 'org.hibernate:hibernate-hikaricp:5.4.10.Final'
+	implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
 	implementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+	implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+	implementation 'org.postgresql:postgresql:42.2.9'
+	implementation 'org.xerial:sqlite-jdbc:3.28.0'
 
 
     // NEO parent project(s)
-	implementation project(':NEOExceptions')
-	implementation project(':NEOModels')
-	implementation project(':NEOCommon')
-	implementation project(':NEOLogging')
-	implementation project(':ExtHealpix')
+	implementation project(':NEOCore')
 
 
 
@@ -70,6 +69,7 @@ dependencies {
     // External dependencies (testImplementation)
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+	testImplementation 'org.junit.platform:junit-platform-commons:1.7.0'
 
 
 }

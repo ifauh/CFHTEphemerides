@@ -19,13 +19,14 @@ import neo.exceptions.NeoSerializationException;
 import neo.logging.NeoLogging;
 import neo.timing.NeoZoneId;
 import neo.utils.UtilsInternet;
+import neo.utils.UtilsOs;
 import neo.utils.UtilsResources;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(
+@Command( name = "CFHTEphemerides",
 	description = "Download ephemerides for 'tonight' from the MPC or JPL web service and" + 
 			" generate XML input files for the CFHT. NEOCP candidates and known objects are managed.\n"
 			+ "'tonight' is is the current UT day if it is before 5am HST, the next day if after.\n"
@@ -218,7 +219,8 @@ public class CFHTEphemeridesConfiguration {
 
 	private boolean checkVersion() throws NeoInitializationException {
 		try {
-			String currentVersion = new String(UtilsInternet.download(new URL("https://neo.ifa.hawaii.edu/users/cfht/VERSION"))).trim();
+			String currentVersion = new String(UtilsInternet.download(
+					new URL("https://neo.ifa.hawaii.edu/users/cfht/VERSION"))).trim();
 			if (this.debug) {
 				logger.debug("Current version: [{}], software version: [{}]", currentVersion, VERSION);
 			}
@@ -229,6 +231,12 @@ public class CFHTEphemeridesConfiguration {
 	}
 
 	private void initialize() throws NeoInitializationException {
+		try {
+			UtilsOs.mkdirs(this.outputDirectory);
+		} catch (NeoIOException e) {
+			logger.error("Cannot create output directory [{}]", this.outputDirectory);
+			throw new NeoInitializationException(e);
+		}
 		// Filter out empty designations
 		logger.debug("Checking if any designation is empty");
 		this.designations = this.designations.stream()

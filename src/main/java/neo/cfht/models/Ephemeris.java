@@ -3,11 +3,10 @@ package neo.cfht.models;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonObject;
 
 import neo.models.astronomy.Declination;
 import neo.models.astronomy.RightAscension;
@@ -24,11 +23,11 @@ public class Ephemeris {
 	private String mpcLine;
 	
 	public JsonObject toJSON() {
-		return Json.createObjectBuilder()
-				.add("mjd", BigDecimal.valueOf(this.epoch.getMJDUT()).setScale(12, RoundingMode.HALF_UP))
-				.add("ra", BigDecimal.valueOf(this.ra.degrees()).setScale(7, RoundingMode.HALF_UP))
-				.add("dec", BigDecimal.valueOf(this.de.degrees()).setScale(7, RoundingMode.HALF_UP))
-				.build();
+		JsonObject jsonObject = new JsonObject();
+		jsonObject.addProperty("mjd", BigDecimal.valueOf(this.epoch.getMJDUT()).setScale(12, RoundingMode.HALF_UP));
+		jsonObject.addProperty("ra", BigDecimal.valueOf(this.ra.degrees()).setScale(7, RoundingMode.HALF_UP));
+		jsonObject.addProperty("dec", BigDecimal.valueOf(this.de.degrees()).setScale(7, RoundingMode.HALF_UP));
+		return jsonObject;
 	}
 
 	public static Ephemeris buildMPC(String mpcLine) {

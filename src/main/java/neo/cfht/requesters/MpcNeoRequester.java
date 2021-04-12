@@ -9,6 +9,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import neo.cfht.app.CFHTEphemeridesConfiguration;
 import neo.cfht.models.Ephemeris;
 import neo.cfht.models.SmallBodyRequest;
+import neo.utils.UtilsFiles;
 
 /**
  * Request NEO Candidate from JPL Scout 
@@ -86,6 +88,11 @@ public class MpcNeoRequester implements IRequester {
 			logger.debug("Got response for {}: {} bytes", this.smallBodyRequest.getDesignation(),
 					body.length());
 			this.requestSuccessful = true;
+			Path mpcResponsePath = this.smallBodyRequest.getCFHTEphemeridesConfiguration()
+					.getOutputDirectory().resolve(String.format("send-serge-if-trouble-%s.mpc-response", 
+							this.smallBodyRequest.getDesignation()));
+			logger.info("Saving MPC HTTP response to {}", mpcResponsePath);
+			UtilsFiles.saveWithBackup(mpcResponsePath, body);
 			CFHTEphemeridesConfiguration cec = this.smallBodyRequest.getCFHTEphemeridesConfiguration();
 			String datePattern = cec.getDate().replaceAll("-", " ");
 			this.cfhtEphemeridesLines = new ArrayList<>();
@@ -147,36 +154,6 @@ public class MpcNeoRequester implements IRequester {
 	public String getCfhtXML() {
 		return this.smallBodyRequest.getCFHTEphemeridesConfiguration().getCfhtXML(this.cfhtEphemeridesLines);
 	}
-	
-//	@Override
-//	public String writeXML() throws NeoIOException {
-//		Path outputDirectory = this.smallBodyRequest.getCFHTEphemeridesConfiguration().getOutputDirectory();
-//		this.outputFileNameXML = outputDirectory.resolve(this.smallBodyRequest.getDesignation() + "-C000.mpc.xml").toString();
-//		UtilsOs.mkdirs(outputDirectory);
-//		try (PrintWriter writer = new PrintWriter(this.outputFileNameXML)) {
-//			logger.info("Writing output XML file: {}", this.outputFileNameXML);
-//			writer.println(getCfhtXML());
-//			writer.close();
-//		} catch (IOException e) {
-//			throw new NeoIOException(e);
-//		}
-//		return this.outputFileNameXML;
-//	}
-//
-//	@Override
-//	public String writeJson() throws NeoIOException {
-//		Path outputDirectory = this.smallBodyRequest.getCFHTEphemeridesConfiguration().getOutputDirectory();
-//		this.outputFileNameJSON = outputDirectory.resolve(this.smallBodyRequest.getDesignation() + "-C000.mpc.json").toString();
-//		UtilsOs.mkdirs(outputDirectory);
-//		try (PrintWriter writer = new PrintWriter(this.outputFileNameJSON)) {
-//			logger.info("Writing output JSON file: {}", this.outputFileNameJSON);
-//			writer.println(getCfhtJSON());
-//			writer.close();
-//		} catch (IOException e) {
-//			throw new NeoIOException(e);
-//		}
-//		return this.outputFileNameJSON;
-//	}
 	
 	@Override
 	public String getOutputFileNameXML() {

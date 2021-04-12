@@ -1,6 +1,5 @@
 package neo.cfht.requesters;
 
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -8,20 +7,24 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import neo.cfht.app.CFHTEphemeridesConfiguration;
 import neo.cfht.models.CFHTFormatter;
 import neo.cfht.models.Ephemeris;
 import neo.cfht.models.SmallBodyRequest;
-import neo.serialization.json.JsonHelpers;
+import neo.resources.PsNeoResources;
+import neo.utils.UtilsFiles;
 
 /**
  * Request NEO Candidate from JPL Scout 
@@ -89,16 +92,23 @@ public class JplNeoRequester implements IRequester {
 			HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 			logger.debug("Got response for {}", this.smallBodyRequest.getDesignation());
 			this.requestSuccessful = true;
-			JsonObject jsonObject = JsonHelpers.readObject(new StringReader(response.body()));
-			logger.debug("response = {}", JsonHelpers.prettyString(jsonObject));
+			String body = response.body();
+			Path jplResponsePath = this.smallBodyRequest.getCFHTEphemeridesConfiguration()
+					.getOutputDirectory().resolve(String.format("send-serge-if-trouble-%s.jpl-response", 
+							this.smallBodyRequest.getDesignation()));
+			logger.info("Saving JPL HTTP response to {}", jplResponsePath);
+			UtilsFiles.saveWithBackup(jplResponsePath, body);
+			JsonObject jsonObject = JsonParser.parseString(body).getAsJsonObject();
+			logger.debug("response = {}", PsNeoResources.GSON.toJson(jsonObject));
 			this.cfhtEphemerides = new ArrayList<>();
 			this.ephemerides = new ArrayList<>();
-			for (JsonValue ephemeris : jsonObject.getJsonArray("eph")) {
-				JsonObject jEphemeris = JsonObject.class.cast(ephemeris);
-				String time = jEphemeris.getString("time");
-				JsonObject jMedian = jEphemeris.getJsonObject("median");
-				double ra = Double.parseDouble(jMedian.getString("ra"));
-				double de = Double.parseDouble(jMedian.getString("dec"));
+			JsonArray jaEph = jsonObject.get("eph").getAsJsonArray();
+			for (JsonElement ephemeris : jaEph) {
+				JsonObject jEphemeris = ephemeris.getAsJsonObject();
+				String time = jEphemeris.get("time").getAsString();
+				JsonObject jMedian = jEphemeris.get("median").getAsJsonObject();
+				double ra = jMedian.get("ra").getAsDouble();
+				double de = jMedian.get("dec").getAsDouble();
 				logger.debug("{}:{}:{}", time, ra, de);
 				this.cfhtEphemerides.add(String.format("%s|%s|%s|", 
 						time, CFHTFormatter.raForCFHT(ra), CFHTFormatter.deForCFHT(de)));
@@ -125,37 +135,6 @@ public class JplNeoRequester implements IRequester {
 	public String getCfhtXML() {
 		return this.smallBodyRequest.getCFHTEphemeridesConfiguration().getCfhtXML(this.cfhtEphemerides);
 	}
-	
-//	@Override
-//	public String writeXML() throws NeoIOException {
-//		Path outputDirectory = this.smallBodyRequest.getCFHTEphemeridesConfiguration().getOutputDirectory();
-//		this.outputFileNameXML = outputDirectory.resolve(this.smallBodyRequest.getDesignation() + "-C000.jpl.xml").toString();
-//		UtilsOs.mkdirs(outputDirectory);
-//		try (PrintWriter writer 
-//				= new PrintWriter(this.outputFileNameXML)) {
-//			logger.info("Writing output XML file: {}", this.outputFileNameXML);
-//			writer.println(getCfhtXML());
-//			writer.close();
-//		} catch (IOException e) {
-//			throw new NeoIOException(e);
-//		}
-//		return this.outputFileNameXML;
-//	}
-	
-//	@Override
-//	public String writeJson() throws NeoIOException {
-//		Path outputDirectory = this.smallBodyRequest.getCFHTEphemeridesConfiguration().getOutputDirectory();
-//		this.outputFileNameJSON = outputDirectory.resolve(this.smallBodyRequest.getDesignation() + "-C000.jpl.json").toString();
-//		UtilsOs.mkdirs(outputDirectory);
-//		try (PrintWriter writer = new PrintWriter(this.outputFileNameJSON)) {
-//			logger.info("Writing output JSON file: {}", this.outputFileNameJSON);
-//			writer.println(getCfhtJSON());
-//			writer.close();
-//		} catch (IOException e) {
-//			throw new NeoIOException(e);
-//		}
-//		return this.outputFileNameJSON;
-//	}
 	
 	@Override
 	public String getOutputFileNameXML() {

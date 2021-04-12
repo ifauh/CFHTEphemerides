@@ -2,22 +2,21 @@ package neo.cfht.requesters;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import neo.cfht.models.Ephemeris;
 import neo.cfht.models.SmallBodyRequest;
 import neo.exceptions.NeoIOException;
-import neo.serialization.json.JsonHelpers;
+import neo.resources.PsNeoResources;
 import neo.utils.UtilsOs;
 
 public interface IRequester extends Callable<IRequester> {
@@ -40,18 +39,15 @@ public interface IRequester extends Callable<IRequester> {
 	
 	
 	default String getCfhtJSON() {
-		JsonArrayBuilder ephemerisPointsJAB = Json.createArrayBuilder();
+		JsonArray ephemerisPointsJAB = new JsonArray();
 		getEphemerides().forEach(ephemeris -> {
 			ephemerisPointsJAB.add(ephemeris.toJSON());
 		});
-		StringWriter writer = new StringWriter();
-		JsonHelpers.write(Json.createObjectBuilder()
-				.add("moving_target",
-						Json.createObjectBuilder()
-						.add("ephemeris_point", ephemerisPointsJAB))
-				.build(), 
-				writer);
-		return writer.toString();
+		JsonObject ephemerisPoint = new JsonObject();
+		ephemerisPoint.add("ephemeris_point", ephemerisPointsJAB);
+		JsonObject jsonObject = new JsonObject();
+		jsonObject.add("moving_target", ephemerisPoint);
+		return PsNeoResources.GSON.toJson(jsonObject);
 	}
 
 	default void write() throws NeoIOException {
