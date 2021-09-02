@@ -26,13 +26,15 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command( name = "CFHTEphemerides",
-	description = "Download ephemerides for 'tonight' from the MPC or JPL web service and" + 
-			" generate XML input files for the CFHT. NEOCP candidates and known objects are managed.\n"
+	description = "Download ephemerides for 'tonight' from the MPC or JPL web service and" 
+			+ " generate XML input files for the CFHT. NEOCP candidates and known objects are managed.\n"
 			+ "'tonight' is is the current UT day if it is before 5am HST, the next day if after.\n"
 			+ "\n"
 			+ "Note: Ephemerides are requested from JPL Scout (resp. MPC) for the NEOCP objects (resp. known objects).\n"
 			+ "\n"
-			+ "IF THERE IS ANY ISSUE, please send the files prefixed with 'send-serge-if-trouble-'\n"
+			+ "IF THERE IS ANY ISSUE, please send the files prefixed with 'send-this-to-serge-in-case-of-trouble-'\n"
+			+ "\n"
+			+ "See https://github.com/psmops/CFHTEphemerides for the code"
 			+ "\n")
 public class CFHTEphemeridesConfiguration {
 	/** Logging */
@@ -57,7 +59,8 @@ public class CFHTEphemeridesConfiguration {
 			description = "Display the version and exit",
 			required = false)
 	private boolean displayVersion;
-
+	String latestVersion;
+	
 	@Option( names = {"-bypassVersionCheck", "--bypassVersionCheck"}, 
 			description = "Bypass the version check",
 			required = false)
@@ -172,6 +175,7 @@ public class CFHTEphemeridesConfiguration {
 		this.designations = new ArrayList<>();
 	}
 
+	public static String PREFIX_TROUBLE = "send-this-to-serge-in-case-of-trouble";
 	public static CFHTEphemeridesConfiguration parse(String ... arguments) throws NeoInitializationException {
 		CFHTEphemeridesConfiguration cec = CommandLine.populateCommand(new CFHTEphemeridesConfiguration(), arguments);
 		// Version
@@ -189,11 +193,11 @@ public class CFHTEphemeridesConfiguration {
 			if (!cec.bypassVersionCheck) {
 				System.err.println("!".repeat(80));
 				System.err.println("!");
-				System.err.println("! You are not using the last version of this software (which is " + VERSION +")");
+				System.err.println("! You are not using the latest version (" + cec.latestVersion + ") of this software (which is " + VERSION +")");
 				System.err.println("!");
-				System.err.println("!");
-				System.err.println("! Either download the last version at https://neo.ifa.hawaii.edu/users/cfht/CFHTEphemerides-last.jar");
-				System.err.println("! Or append the -bypassVersionCheck sflag if you cannot update (not sure that the software will work)");
+				System.err.println("! You can");
+				System.err.println("! - Either: Download the latest version at https://neo.ifa.hawaii.edu/users/cfht/CFHTEphemerides-latest.jar");
+				System.err.println("! - Or: Append the -bypassVersionCheck option to the command line if you cannot or don't want to update it (Be aware that there is no guarantee that the software will work properly though)");
 				System.err.println("!");
 				System.err.println("!".repeat(80));
 				System.exit(2);
@@ -204,7 +208,7 @@ public class CFHTEphemeridesConfiguration {
 		System.err.println("!".repeat(80));
 		System.err.println("!");
 		System.err.println("! IF THERE IS ANY ISSUE");
-		System.err.println("! Please send all files prefixed with 'send-serge-if-trouble'");
+		System.err.println("! Please send all files prefixed with '" + PREFIX_TROUBLE + "'");
 		System.err.println("! stored in the " + cec.outputDirectory.toString() + " directory");
 		System.err.println("! That should help a lot...");
 		System.err.println("!");
@@ -224,12 +228,12 @@ public class CFHTEphemeridesConfiguration {
 
 	private boolean checkVersion() throws NeoInitializationException {
 		try {
-			String currentVersion = new String(UtilsInternet.download(
+			this.latestVersion = new String(UtilsInternet.download(
 					new URL("https://neo.ifa.hawaii.edu/users/cfht/VERSION"))).trim();
 			if (this.debug) {
-				logger.debug("Current version: [{}], software version: [{}]", currentVersion, VERSION);
+				logger.debug("Current version: [{}], software version: [{}]", this.latestVersion, VERSION);
 			}
-			return VERSION.equals(currentVersion);
+			return VERSION.equals(this.latestVersion);
 		} catch (NeoIOException | MalformedURLException e) {
 			throw new NeoInitializationException(e);
 		}

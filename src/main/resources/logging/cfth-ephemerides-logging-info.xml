@@ -19,9 +19,9 @@
   </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>out/send-serge-if-trouble.log</file>
+    <file>out/send-this-to-serge-in-case-of-trouble.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>send-serge-if-trouble.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+      <fileNamePattern>send-this-to-serge-in-case-of-trouble.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
       <maxHistory>5</maxHistory>
     </rollingPolicy>
     <encoder>

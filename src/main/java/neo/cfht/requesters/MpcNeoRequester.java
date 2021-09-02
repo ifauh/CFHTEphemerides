@@ -89,7 +89,8 @@ public class MpcNeoRequester implements IRequester {
 					body.length());
 			this.requestSuccessful = true;
 			Path mpcResponsePath = this.smallBodyRequest.getCFHTEphemeridesConfiguration()
-					.getOutputDirectory().resolve(String.format("send-serge-if-trouble-%s.mpc-response", 
+					.getOutputDirectory().resolve(String.format("%s-%s.mpc-response",
+							CFHTEphemeridesConfiguration.PREFIX_TROUBLE,
 							this.smallBodyRequest.getDesignation()));
 			logger.info("Saving MPC HTTP response to {}", mpcResponsePath);
 			UtilsFiles.saveWithBackup(mpcResponsePath, body);

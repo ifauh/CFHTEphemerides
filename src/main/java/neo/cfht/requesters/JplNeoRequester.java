@@ -94,7 +94,8 @@ public class JplNeoRequester implements IRequester {
 			this.requestSuccessful = true;
 			String body = response.body();
 			Path jplResponsePath = this.smallBodyRequest.getCFHTEphemeridesConfiguration()
-					.getOutputDirectory().resolve(String.format("send-serge-if-trouble-%s.jpl-response", 
+					.getOutputDirectory().resolve(String.format("%s-%s.jpl-response", 
+							CFHTEphemeridesConfiguration.PREFIX_TROUBLE,
 							this.smallBodyRequest.getDesignation()));
 			logger.info("Saving JPL HTTP response to {}", jplResponsePath);
 			UtilsFiles.saveWithBackup(jplResponsePath, body);

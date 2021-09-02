@@ -84,7 +84,8 @@ public class MpcKnownRequester implements IRequester {
 			logger.debug("Got response for {}", this.smallBodyRequest.getDesignation());
 			String body = response.body();
 			Path mpcResponsePath = this.smallBodyRequest.getCFHTEphemeridesConfiguration()
-					.getOutputDirectory().resolve(String.format("send-serge-if-trouble-known-%s.mpc-response", 
+					.getOutputDirectory().resolve(String.format("%s-known-%s.mpc-response",
+							CFHTEphemeridesConfiguration.PREFIX_TROUBLE,
 							this.smallBodyRequest.getDesignation()));
 			logger.info("Saving MPC HTTP response to {}", mpcResponsePath);
 			UtilsFiles.saveWithBackup(mpcResponsePath, body);
