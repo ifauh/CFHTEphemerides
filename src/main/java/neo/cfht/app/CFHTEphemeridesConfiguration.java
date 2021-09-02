@@ -193,7 +193,7 @@ public class CFHTEphemeridesConfiguration {
 			if (!cec.checkVersion()) {
 				System.err.println("!".repeat(80));
 				System.err.println("!");
-				System.err.println("! You are not using the latest version (" + cec.latestVersion + ") of this software (which is " + VERSION +")");
+				System.err.println("! You are not using the latest version (" + cec.latestVersion + ") of this software (you're using " + VERSION +")");
 				System.err.println("!");
 				System.err.println("! You can");
 				System.err.println("! - Either: Download the latest version at https://neo.ifa.hawaii.edu/users/cfht/CFHTEphemerides-latest.jar");
