@@ -34,7 +34,7 @@ import picocli.CommandLine.Parameters;
 			+ "\n"
 			+ "IF THERE IS ANY ISSUE, please send the files prefixed with 'send-this-to-serge-in-case-of-trouble-'\n"
 			+ "\n"
-			+ "See https://github.com/psmops/CFHTEphemerides for the code"
+			+ "See https://github.com/psmops/CFHTEphemerides for the source code"
 			+ "\n")
 public class CFHTEphemeridesConfiguration {
 	/** Logging */
