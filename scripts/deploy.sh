@@ -22,5 +22,5 @@ scp VERSION mops@nmops15:/var/www/html/users/cfht/VERSION
 scp tmp/CHANGELOG mops@nmops15:/var/www/html/users/cfht/CHANGELOG
 scp tmp/README mops@nmops15:/var/www/html/users/cfht/README
 scp build/libs/CFHTEphemerides-$VERSION.jar mops@nmops15:/var/www/html/users/cfht/
-scp build/libs/CFHTEphemerides-$VERSION.jar mops@nmops15:/var/www/html/users/cfht/CFHTEphemerides-last.jar
+scp build/libs/CFHTEphemerides-$VERSION.jar mops@nmops15:/var/www/html/users/cfht/CFHTEphemerides-latest.jar
 
