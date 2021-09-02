@@ -5,7 +5,7 @@
             "NPC_IMPLEMENTATION_VERSION": "0.2",
             "name": "CFHTEphemerides",
             "gitURL": "ssh://mopsgit@localhost:9256/home/mopsgit/repos/CFHTEphemerides.git",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "description": "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py",
             "mainClass": "neo.cfht.app.CFHTEphemerides",
             "implementation": {
