@@ -189,8 +189,8 @@ public class CFHTEphemeridesConfiguration {
 			System.exit(0);
 			return null;
 		}
-		if (!cec.checkVersion()) {
-			if (!cec.bypassVersionCheck) {
+		if (!cec.bypassVersionCheck) {
+			if (!cec.checkVersion()) {
 				System.err.println("!".repeat(80));
 				System.err.println("!");
 				System.err.println("! You are not using the latest version (" + cec.latestVersion + ") of this software (which is " + VERSION +")");

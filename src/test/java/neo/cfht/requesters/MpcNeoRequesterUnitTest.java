@@ -13,7 +13,7 @@ public class MpcNeoRequesterUnitTest {
 
 	@Test
 	public void test20190814() throws Exception {
-		CFHTEphemeridesConfiguration cec = CFHTEphemeridesConfiguration.parse("A10fwNJ", "-d");
+		CFHTEphemeridesConfiguration cec = CFHTEphemeridesConfiguration.parse("A10fwNJ", "-d", "-bypassVersionCheck");
 		SmallBodyRequest smallBodyRequest = new SmallBodyRequest("A10fwNJ", cec);
 		MpcNeoRequester mpcNeoRequester = new MpcNeoRequester(smallBodyRequest);
 		mpcNeoRequester.call();
