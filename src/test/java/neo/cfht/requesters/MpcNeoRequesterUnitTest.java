@@ -11,6 +11,7 @@ public class MpcNeoRequesterUnitTest {
 	/** Logging */
 	private final static Logger logger = LoggerFactory.getLogger(MpcNeoRequesterUnitTest.class);
 
+	// This doesn't test much beside giving an idea on how to use the command line
 	@Test
 	public void test20190814() throws Exception {
 		CFHTEphemeridesConfiguration cec = CFHTEphemeridesConfiguration.parse("A10fwNJ", "-d", "-bypassVersionCheck");
