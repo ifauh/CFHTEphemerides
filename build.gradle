@@ -1,5 +1,5 @@
 /*
- * Generated on 2021-09-02T20:19:58.808974Z
+ * Generated on 2021-10-08T19:13:06.190360Z
  *
  */
 
@@ -10,7 +10,7 @@ apply plugin: 'maven-publish'
 
 group = "neo"
 project.ext.name = "CFHTEphemerides"
-project.ext.version = "1.0.8"
+project.ext.version = "1.0.9alpha"
 project.ext.confVersion = "1.0"
 project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
 project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
