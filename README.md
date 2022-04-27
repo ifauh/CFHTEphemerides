@@ -19,3 +19,5 @@ The jar can be downloaded from https://neo.ifa.hawaii.edu/users/cfht/CFHTEphemer
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ```
 
+test write with mopspipe@nmops02
+
