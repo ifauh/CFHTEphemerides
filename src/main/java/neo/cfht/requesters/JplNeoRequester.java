@@ -100,7 +100,7 @@ public class JplNeoRequester implements IRequester {
 			logger.info("Saving JPL HTTP response to {}", jplResponsePath);
 			UtilsFiles.saveWithBackup(jplResponsePath, body);
 			JsonObject jsonObject = JsonParser.parseString(body).getAsJsonObject();
-			logger.debug("response = {}", PsNeoResources.GSON.toJson(jsonObject));
+			logger.debug("response = {}", PsNeoResources.toJson(jsonObject,true));
 			this.cfhtEphemerides = new ArrayList<>();
 			this.ephemerides = new ArrayList<>();
 			JsonArray jaEph = jsonObject.get("eph").getAsJsonArray();

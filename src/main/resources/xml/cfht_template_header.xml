@@ -16,7 +16,8 @@
     </FIELD>
     <!-- Data table -->
 <DATA><CSV headlines="4" colsep="|">
-<![CDATA[ DATE_UTC |RA_J2000   |DEC_J2000  |
+<![CDATA[
+DATE_UTC           |RA_J2000   |DEC_J2000  |
 YYYY-MM-DD hh:mm:ss|hh:mm:ss.ss|+dd:mm:ss.s|
 1234567890123456789|12345678901|12345678901|
 -------------------|-----------|-----------|
