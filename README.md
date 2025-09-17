@@ -21,3 +21,19 @@ The jar can be downloaded from https://neo.ifa.hawaii.edu/users/cfht/CFHTEphemer
 
 test write with mopspipe@nmops02
 
+## SSL Certificate Issue
+
+Previously, folk have had issues with using the scout API. Java decides to freak-out at the certifcates and you get a message like:
+
+	sun.security.provider.certpath.SunCertPathBuilderException: unable to
+	find valid certification path to requested target
+
+Here's a work around.
+
+First, get the certificate from the api page: https://ssd-api.jpl.nasa.gov/scout.api
+It became active on Feb 5th 2025, which is around when these issues started.
+
+Add the certificate to your java version using keytool. Likely, you have $JAVA_HOME set and it should look something like this:
+	keytool -importcert -file ~/Downloads/ssd-api-jpl-nasa-gov.pem -keystore "$JAVA_HOME"/lib/security/cacerts -cacerts
+
+The default password to update the keystore is 'changeit' if you have not used it before.
