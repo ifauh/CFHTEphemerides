@@ -47,7 +47,7 @@ public interface IRequester extends Callable<IRequester> {
 		ephemerisPoint.add("ephemeris_point", ephemerisPointsJAB);
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.add("moving_target", ephemerisPoint);
-		return PsNeoResources.GSON.toJson(jsonObject);
+		return PsNeoResources.toJson(jsonObject,true);
 	}
 
 	default void write() throws NeoIOException {

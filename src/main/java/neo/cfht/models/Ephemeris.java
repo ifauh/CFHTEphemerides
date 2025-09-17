@@ -43,9 +43,9 @@ public class Ephemeris {
 		double dday = (double) day + ((double) hour)/24. + ((double) minute)/1440.;
 		ephemeris.epoch = Time.createFromMPCUTDate(year, month, dday);
 		// RA
-		ephemeris.ra = new RightAscension(Angle.fromRightAscensionHMS(mpcLine.substring(18, 24+4), " "));
+		ephemeris.ra = RightAscension.fromRightAscensionHMS(mpcLine.substring(18, 24+4), " ");
 		// De
-		ephemeris.de = new Declination(Angle.fromDeclinationDMS(mpcLine.substring(29, 36+2), " "));
+		ephemeris.de = Declination.fromDeclinationDMS(mpcLine.substring(29, 36+2), " ");
 		return ephemeris;
 	}
 

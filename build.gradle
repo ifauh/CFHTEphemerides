@@ -1,5 +1,5 @@
 /*
- * Generated on 2021-04-12T19:31:54.956216Z
+ * Generated on 2025-09-17T05:28:47.414198087Z
  *
  */
 
@@ -7,19 +7,25 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+apply plugin: 'jacoco'
 
 group = "neo"
 project.ext.name = "CFHTEphemerides"
-project.ext.version = "1.0.7"
+project.ext.version = "1.1.1"
 project.ext.confVersion = "1.0"
 project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
 project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
-project.ext.specificationVersion = "0.2" // see NEOProjectDevelopment
+project.ext.specificationVersion = "undefined" // see NEOProjectDevelopment
 project.ext.release = ""
 
 // In this section you declare where to find the dependencies of your project
 repositories {
     mavenCentral()
+}
+
+// Required for github
+compileJava {
+    options.compilerArgs << '-encoding' << 'utf8'
 }
 
 configurations.all {
@@ -32,49 +38,51 @@ configurations.all {
 }
 
 test {
+    jvmArgs("-Xmx2G")
 	useJUnitPlatform()
 	testLogging {
 		events "passed", "skipped", "failed"
 	}
+	finalizedBy jacocoTestReport // report is always generated after tests run
 }
 
 dependencies {
-    // External dependencies for implementation
-	implementation 'ch.qos.logback:logback-classic:1.2.3'
-	implementation 'ch.qos.logback:logback-core:1.2.3'
-	implementation 'com.google.code.gson:gson:2.8.6'
-	implementation 'com.sun.mail:javax.mail:1.6.2'
-	implementation 'gov.nasa.gsfc.heasarc:nom-tam-fits:1.15.2'
-	implementation 'info.picocli:picocli:4.5.1'
-	implementation 'javax.servlet:javax.servlet-api:3.1.0'
-	implementation 'javax.xml.bind:jaxb-api:2.3.0'
-	implementation 'org.apache.commons:commons-math3:3.6.1'
-	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
-	implementation 'org.hibernate:hibernate-core:5.4.10.Final'
-	implementation 'org.hibernate:hibernate-entitymanager:5.4.10.Final'
-	implementation 'org.hibernate:hibernate-hikaricp:5.4.10.Final'
-	implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-	implementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
-	implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
-	implementation 'org.postgresql:postgresql:42.2.9'
-	implementation 'org.xerial:sqlite-jdbc:3.28.0'
+    // Maven compile dependencies
+        implementation 'ch.qos.logback:logback-classic:1.2.3'
+        implementation 'ch.qos.logback:logback-core:1.2.3'
+        implementation 'com.google.code.gson:gson:2.8.6'
+        implementation 'com.sun.mail:javax.mail:1.6.2'
+        implementation 'gov.nasa.gsfc.heasarc:nom-tam-fits:1.15.2'
+        implementation 'info.picocli:picocli:4.5.1'
+        implementation 'javax.servlet:javax.servlet-api:3.1.0'
+        implementation 'javax.xml.bind:jaxb-api:2.3.0'
+        implementation 'org.apache.commons:commons-math3:3.6.1'
+        implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
+        implementation 'org.hibernate:hibernate-core:5.4.10.Final'
+        implementation 'org.hibernate:hibernate-entitymanager:5.4.10.Final'
+        implementation 'org.hibernate:hibernate-hikaricp:5.4.10.Final'
+        implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+        implementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+        implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+        implementation 'org.postgresql:postgresql:42.2.9'
+        implementation 'org.xerial:sqlite-jdbc:3.28.0'
 
 
-    // NEO parent project(s)
-	implementation project(':NEOCore')
+    // Maven NeoProject dependencies
+        implementation project(':NEOCore')
 
 
 
     // Dependency for test framework
-    // External dependencies (testImplementation)
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
-	testImplementation 'org.junit.platform:junit-platform-commons:1.7.0'
+    // Maven test dependencies
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+        testImplementation 'org.junit.platform:junit-platform-commons:1.7.0'
 
 
 }
 
-task setRelease {
+tasks.register('setRelease') {
   doLast {
     new ByteArrayOutputStream().withStream { os ->
       def result = exec {
@@ -98,18 +106,20 @@ jar {
     archiveBaseName = project.ext.name + "-" + project.ext.version
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+tasks.register('sourcesJar',Jar) {
+    dependsOn classes
+    archiveClassifier.set('sources')
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+tasks.register('javadocJar',Jar) {
+    dependsOn javadoc
+    archiveClassifier.set('javadoc')
     from javadoc.destinationDir
 }
 
-task testJar(type: Jar) {
-    classifier = 'tests'
+tasks.register('testJar', Jar) {
+    archiveClassifier = 'tests'
     from sourceSets.test.output + sourceSets.test.allSource
 }
 
@@ -120,7 +130,7 @@ artifacts {
 
 // Build a jar aggregating all jars
 // Fails if there is no project.ext.mainClass or no project.ext.specVersion
-task fatJar(type: Jar) {
+tasks.register('fatJar', Jar) {
     dependsOn compileJava, sourcesJar
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
@@ -132,7 +142,7 @@ task fatJar(type: Jar) {
                    )
     }
     archiveBaseName = project.ext.name + "-" + project.ext.version
-    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
@@ -154,19 +164,19 @@ publishing {
 			pom {
 				name = project.ext.name
 				description = project.ext.description
-				url = 'https://confluence.ipp.ifa.hawaii.edu/display/MOPS/Sources'
+				url = 'https://panstarrs.atlassian.net/l/cp/5hU8S0R1'
 				properties = [
 					"prop.with.dots": "anotherValue"
 				]
 				developers {
 					developer {
-						id = 'schastel'
-						name = 'Serge Chastel'
-						email = 'schastel@hawaii.edu'
+						id = 'fairlamb'
+						name = 'John Fairlamb'
+						email = 'ps-mops-ops@hawaii.edu'
 					}
 				}
 				scm {
-					url = 'https://confluence.ipp.ifa.hawaii.edu/display/MOPS/Sources'
+					url = 'https://panstarrs.atlassian.net/l/cp/5hU8S0R1'
 				}
 			}
 		}
@@ -175,3 +185,6 @@ publishing {
 	}
 }
 
+jacocoTestReport {
+    dependsOn test
+}
