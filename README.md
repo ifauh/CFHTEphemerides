@@ -37,3 +37,15 @@ Add the certificate to your java version using keytool. Likely, you have $JAVA_H
 	keytool -importcert -file ~/Downloads/ssd-api-jpl-nasa-gov.pem -keystore "$JAVA_HOME"/lib/security/cacerts -cacerts
 
 The default password to update the keystore is 'changeit' if you have not used it before.
+
+
+If you are told that you already have an alias for the cert you are adding:
+
+	keytool error: java.lang.Exception: Certificate not imported, alias
+	<mykey> already exists
+
+Then just delete the old one and try again:
+
+	keytool -delete -cacerts
+
+And when prompted enter the alias name. In the above error the alias was 'mykey'

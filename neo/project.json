@@ -4,7 +4,7 @@
     "gitURI": "git@github.com:psmops/CFHTEphemerides.git"
   },
   "description": "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "confVersion": "1.0",
   "mainClass": "neo.cfht.app.CFHTEphemerides",
   "neoProjectCompileDependencies": [
@@ -12,7 +12,7 @@
       "name": "NEOCore",
       "gitURI": "git@github.com:psmops/NEOCore.git",
       "branch": "main",
-      "gitCommitId": "0987593a20c8b65ed7a3d45027923dec8378548a"
+      "gitCommitId": "51f366adf00b9bc422bc6350247ea8620d899def"
     }
   ],
   "mavenCompileDependencies": [

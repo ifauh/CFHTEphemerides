@@ -1,5 +1,5 @@
 /*
- * Generated on 2025-09-17T05:28:47.414198087Z
+ * Generated on 2026-03-24T22:23:12.707664800Z
  *
  */
 
@@ -11,7 +11,7 @@ apply plugin: 'jacoco'
 
 group = "neo"
 project.ext.name = "CFHTEphemerides"
-project.ext.version = "1.1.1"
+project.ext.version = "1.1.2"
 project.ext.confVersion = "1.0"
 project.ext.description = "NEO Project: Java rewrite of Downloader.py and cfht_ephemeris.py"
 project.ext.mainClass = "neo.cfht.app.CFHTEphemerides"
@@ -187,4 +187,17 @@ publishing {
 
 jacocoTestReport {
     dependsOn test
+}
+
+// Configure resource filtering to inject version strings into properties files
+processResources {
+    inputs.property "version", project.ext.version
+    inputs.property "confVersion", project.ext.confVersion
+
+    filesMatching("**/version.properties") {
+        expand(
+                'version': project.ext.version,
+                'confVersion': project.ext.confVersion
+        )
+    }
 }
